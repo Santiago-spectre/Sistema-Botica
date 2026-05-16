@@ -2,15 +2,20 @@ package com.SistemaWeb.Botica.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,32 +25,31 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "ventas")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Venta {
-    @Id
-    @EqualsAndHashCode.Include
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer idVenta;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@EqualsAndHashCode.Include
+	private Integer idVenta;
 
-    @ManyToOne
-    @JoinColumn(name = "id_cliente", nullable = false,
-            foreignKey = @ForeignKey(name = "FK_VENTA_CLIENTE"))
-    private Cliente cliente;
+	@ManyToOne
+	@JoinColumn(name = "id_cliente", nullable = true)
+	private Cliente cliente;
 
-    @ManyToOne
-    @JoinColumn(name = "id_usuario", nullable = false,
-            foreignKey = @ForeignKey(name = "FK_VENTA_USUARIO"))
-    private Usuario usuario;
+	@Column(nullable = false)
+	private LocalDateTime fecha;
 
-    @Column(nullable = false)
-    private LocalDateTime fechaVenta;
+	@Column(nullable = false, precision = 10, scale = 2)
+	private BigDecimal total;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal total;
+	@Column(nullable = false, length = 20)
+	private String estado; // PAGADO | ANULADO
 
-    @Column(nullable = false, length = 20)
-    private String metodoPago;
+	@Column(nullable = true, length = 200)
+	private String observacion;
 
-    @Column(nullable = false, length = 20)
-    private String status;
+	@OneToMany(mappedBy = "venta", cascade = CascadeType.ALL, orphanRemoval = true)
+	@JsonManagedReference
+	private List<DetalleVenta> detalles;
 }
